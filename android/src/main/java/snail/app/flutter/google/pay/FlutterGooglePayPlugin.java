@@ -112,13 +112,21 @@ public class FlutterGooglePayPlugin implements MethodCallHandler, PluginRegistry
      * Data</a>
      */
     private void callToDartOnPaymentSuccess(PaymentData paymentData) {
-        String paymentInfo = paymentData.toJson();
-        Map<String, Object> data = new HashMap<>();
-        data.put("status", paymentInfo != null ? "SUCCESS" : "UNKNOWN");
-        if (paymentInfo != null) {
-            data.put("result", paymentInfo);
+        JSONObject paymentMethodData = null;
+        try {
+            if (paymentData.getPaymentMethodToken() != null) {
+                paymentMethodData = new JSONObject(paymentData.getPaymentMethodToken().getToken());
+            }
+            Log.d("PaymentData:", String.valueOf(paymentMethodData));
+            Map<String, Object> data = new HashMap<>();
+            data.put("status", paymentMethodData != null ? "SUCCESS" : "UNKNOWN");
+            if (paymentMethodData != null) {
+                data.put("result", paymentMethodData.toString());
+            }
+            mLastResult.success(data);
+        } catch (JSONException e) {
+            this.callToDartOnError(e.getMessage());
         }
-        mLastResult.success(data);
     }
 
     private void callToDartOnGooglePayIsAvailable(boolean isAvailable) {
@@ -194,12 +202,19 @@ public class FlutterGooglePayPlugin implements MethodCallHandler, PluginRegistry
     }
 
     private void requestPaymentCustom() {
+        Log.d("myTag", "This is my message3");
+        Map map = (Map)mLastMethodCall.arguments;
+        Log.d("myTag", "This is my message4");
         try {
-            JSONObject paymentData = new JSONObject((Map)mLastMethodCall.arguments);
+            JSONObject paymentData = new JSONObject(map);
+            Log.d("myTag", "This is my message5");
             PaymentDataRequest request =
                     PaymentDataRequest.fromJson(paymentData.toString());
+            Log.d("myTag", "This is my message6");
             this.makePayment(request);
+
         } catch (Exception e) {
+            Log.d("myTag", "This is my message7");
             callToDartOnError(e.getMessage());
         }
     }
@@ -228,8 +243,11 @@ public class FlutterGooglePayPlugin implements MethodCallHandler, PluginRegistry
         // AutoResolveHelper to wait for the user interacting with it. Once completed,
         // onActivityResult will be called with the result.
         if (request != null) {
+            Log.d("myTag", "This is my message8");
             Task<PaymentData> task = client().loadPaymentData(request);
+            Log.d("myTag", "This is my message9");
             AutoResolveHelper.resolveTask(task, mActivity, LOAD_PAYMENT_DATA_REQUEST_CODE);
+            Log.d("myTag", "This is my message10");
         }
     }
 
@@ -241,10 +259,12 @@ public class FlutterGooglePayPlugin implements MethodCallHandler, PluginRegistry
      * "https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient.html#isReadyToPay(com.google.android.gms.wallet.IsReadyToPayRequest)">PaymentsClient#IsReadyToPay</a>
      */
     private void checkIsGooglePayAvailable() {
+        Log.d("made it1","made it1");
         IsReadyToPayRequest request = IsReadyToPayRequest.newBuilder()
                 .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_CARD)
                 .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_TOKENIZED_CARD)
                 .build();
+        Log.d("made it2","made it2");
         // The call to isReadyToPay is asynchronous and returns a Task. We need to provide an
         // OnCompleteListener to be triggered when the result of the call is known.
         Task<Boolean> task = client().isReadyToPay(request);
@@ -254,9 +274,11 @@ public class FlutterGooglePayPlugin implements MethodCallHandler, PluginRegistry
                     public void onComplete(Task<Boolean> task) {
                         if (task.isSuccessful()) {
                             callToDartOnGooglePayIsAvailable(true);
+                            Log.d("made it3","made it3");
 
                         } else {
                             callToDartOnGooglePayIsAvailable(false);
+                            Log.d("made it4","made it4");
                             Log.w("isReadyToPay failed", task.getException());
                         }
                     }

@@ -14,14 +14,17 @@ class FlutterGooglePay {
   }
 
   static Future<Result> makeCustomPayment(Map data) async {
+    print('made it');
     return _call("request_payment_custom_payment", data);
   }
 
   static Future<Result> _call(String methodName, dynamic data) async {
+    print('made it1 ' + methodName);
     Result result =
         await _channel.invokeMethod(methodName, data).then((dynamic data) {
       return _parseResult(data);
     }).catchError((dynamic error) {
+      print('made it2 ' + methodName);
       return Result(error?.toString() ?? 'unknow error', null,
           ResultStatus.ERROR, (error?.toString()) ?? "");
     });
@@ -156,16 +159,16 @@ bool _validateCurrencyCode(dynamic currencyCode) {
 }
 
 class PaymentBuilder {
-  Map<String, dynamic> _gatewayTokenizationSpecification;
-  Map<String, dynamic> _directTokenizationSpecification;
-  Map<String, dynamic> _transactionInfo;
-  Map<String, dynamic> _merchantInfo;
-  List<String> _allowedCardNetworks;
-  List<String> _allowedCardAuthMethods;
-  List<String> _shippingSupportedCountries;
-  bool _billingAddressRequired;
-  bool _shippingAddressRequired;
-  bool _phoneNumberRequred;
+  Map<dynamic, dynamic> _gatewayTokenizationSpecification;
+  Map<dynamic, dynamic> _directTokenizationSpecification;
+  Map<dynamic, dynamic> _transactionInfo;
+  Map<dynamic, dynamic> _merchantInfo;
+  List<dynamic> _allowedCardNetworks;
+  List<dynamic> _allowedCardAuthMethods;
+  List<dynamic> _shippingSupportedCountries;
+  dynamic _billingAddressRequired;
+  dynamic _shippingAddressRequired;
+  dynamic _phoneNumberRequred;
 
   /// An object describing information requested in a Google Pay payment sheet
   ///
@@ -192,7 +195,7 @@ class PaymentBuilder {
       shippingAddressParameters["allowedCountryCodes"] = allowedCountryCodes;
       paymentDataRequest["shippingAddressParameters"] =
           shippingAddressParameters;
-    }
+    }    
     return paymentDataRequest;
   }
 
@@ -262,7 +265,7 @@ class PaymentBuilder {
   ///    "JCB",
   ///    "MASTERCARD",
   ///    "VISA"
-  addAllowedCardNetworks(List<String> allowedCardNetworks) {
+  addAllowedCardNetworks(List<dynamic> allowedCardNetworks) {
     if (allowedCardNetworks != null && allowedCardNetworks.length > 0) {
       _allowedCardNetworks = allowedCardNetworks;
     }
@@ -275,7 +278,7 @@ class PaymentBuilder {
   ///
   /// The Google Pay API may return cards on file on Google.com (PAN_ONLY) and/or a device token on
   /// an Android device authenticated with a 3-D Secure cryptogram (CRYPTOGRAM_3DS).
-  addAllowedCardAuthMethods(List<String> allowedCardAuthMethods) {
+  addAllowedCardAuthMethods(List<dynamic> allowedCardAuthMethods) {
     if (allowedCardAuthMethods != null && allowedCardAuthMethods.length > 0) {
       _allowedCardAuthMethods = allowedCardAuthMethods;
     }
@@ -284,18 +287,18 @@ class PaymentBuilder {
   /// Optionally, you can add billing address/phone number associated with a CARD payment method.
   ///
   /// Please, skipp this function call if no need to add this parameter.
-  addBillingAddressRequired(bool required) {
+  addBillingAddressRequired(dynamic required) {
     _billingAddressRequired = required;
   }
 
   /// An optional shipping address requirement is a top-level property
   ///
   /// Please, skipp this function call if no need to add this parameter.
-  addShippingAddressRequired(bool required) {
+  addShippingAddressRequired(dynamic required) {
     _shippingAddressRequired = required;
   }
 
-  addPhoneNumberRequired(bool required) {
+  addPhoneNumberRequired(dynamic required) {
     _phoneNumberRequred = required;
   }
 
